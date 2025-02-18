@@ -28,14 +28,12 @@ func GetUsersDB(ids []string) ([]models.User, string, error) {
 	if err == nil {
 		return users, "Replica", nil
 	}
-	fmt.Println("hola", err)
 
 	users, err = GetUsersMysql(ids)
-	fmt.Println("adios", err)
 
 	if err == nil {
 		return users, "Main", nil
 	}
 
-	return nil, "", err
+	return []models.User{}, "", err
 }
