@@ -100,3 +100,28 @@ func GetUserByIdMysql(userID int) (*models.User, error) {
 	}
 	return &user, nil
 }
+func GetUserByCorrelativeMysql(Correlative int) (*models.User, error) {
+	var err error
+	var user models.User
+	query := `
+		SELECT
+			ID,
+			NOMBRE, 
+			APELLIDO, 
+			DNI, 
+			FECHANACIMIENTO, 
+			NACIONALIDAD, 
+			RESIDENCIA, 
+			CORRELATIVO 
+		FROM 
+			USUARIOS 
+		WHERE CORRELATIVO = ?
+	`
+	err = DbMySQL.QueryRow(
+		query, Correlative,
+	).Scan(&user.Id, &user.FirstName, &user.LastName, &user.Identity, &user.Birthday, &user.NativeCountry, &user.Country, &user.Correlative)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

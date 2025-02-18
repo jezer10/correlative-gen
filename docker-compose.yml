@@ -7,11 +7,11 @@ services:
     networks:
       - internal
     env_file:
-      - .env.production
+      - .env
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -27,39 +27,34 @@ services:
       redis:
         condition: service_healthy
       mysql:
-          condition: service_healthy 
+        condition: service_healthy
   pg:
     image: postgres
     restart: always
-    # ports:
-    #   - 5432:5432
     networks:
       - internal
     volumes:
       - pg_data:/var/lib/postgresql/data
     env_file:
-      - .env.production
+      - .env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-
   redis:
     image: redis
     restart: unless-stopped
-    # ports:
-    #   - 6379:6379
     networks:
       - internal
     env_file:
-      - .env.production
-    command: redis-server --requirepass "$REDIS_PASSWORD"
+      - .env
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5

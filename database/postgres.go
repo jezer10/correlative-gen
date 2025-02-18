@@ -77,15 +77,15 @@ func InitDb() {
 	fmt.Println("✅ Base de datos inicializada con tablas y triggers")
 }
 
-func InsertUser(user models.User) (string, error) {
-	var generatedCorrelative string
+func InsertUser(user models.User) (int, error) {
+	var id int
 
-	query := `INSERT INTO USUARIOS (NOMBRE, APELLIDO, DNI, FECHANACIMIENTO, NACIONALIDAD, RESIDENCIA) VALUES ($1, $2, $3, $4, $5, $6) RETURNING CORRELATIVO`
-	err := DB.QueryRow(query, user.FirstName, user.LastName, user.Identity, user.Birthday, user.NativeCountry, user.Country).Scan(&generatedCorrelative)
-	if generatedCorrelative == "" {
-		return "", fmt.Errorf("bad generated correlative")
+	query := `INSERT INTO USUARIOS (NOMBRE, APELLIDO, DNI, FECHANACIMIENTO, NACIONALIDAD, RESIDENCIA) VALUES ($1, $2, $3, $4, $5, $6) returning id`
+	err := DB.QueryRow(query, user.FirstName, user.LastName, user.Identity, user.Birthday, user.NativeCountry, user.Country).Scan(&id)
+	if err != nil {
+		return 0, err
 	}
-	return generatedCorrelative, err
+	return id, nil
 }
 
 func GetUserById(userID int) (*models.User, error) {
@@ -103,10 +103,37 @@ func GetUserById(userID int) (*models.User, error) {
 			CORRELATIVO 
 		FROM 
 			USUARIOS 
-		WHERE CORRELATIVO = $1
+		WHERE Id = $1
 		`
 	err = DB.QueryRow(
 		query, userID,
+	).Scan(&user.Id, &user.FirstName, &user.LastName, &user.Identity, &user.Birthday, &user.NativeCountry, &user.Country, &user.Correlative)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func GetUserByCorrelative(Correlative int) (*models.User, error) {
+	var err error
+	var user models.User
+	query := `
+		SELECT
+			ID,
+			NOMBRE, 
+			APELLIDO, 
+			DNI, 
+			FECHANACIMIENTO, 
+			NACIONALIDAD, 
+			RESIDENCIA, 
+			CORRELATIVO 
+		FROM 
+			USUARIOS 
+		WHERE CORRELATIVO = $1
+		`
+	err = DB.QueryRow(
+		query, Correlative,
 	).Scan(&user.Id, &user.FirstName, &user.LastName, &user.Identity, &user.Birthday, &user.NativeCountry, &user.Country, &user.Correlative)
 	if err != nil {
 		return nil, err

@@ -19,8 +19,6 @@ import (
 
 func apiKeyMiddleware(c *fiber.Ctx) error {
 	requestKey := c.Get("X-API-Key")
-	fmt.Print(requestKey)
-
 	if requestKey != utils.ApiKey {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": "API Key inválida",
@@ -28,22 +26,6 @@ func apiKeyMiddleware(c *fiber.Ctx) error {
 	}
 
 	return c.Next()
-}
-
-func getUserByID(userID int) (*models.User, string, error) {
-	user, err := database.GetUserByIdMysql(userID)
-	fmt.Print(err)
-
-	if err == nil {
-		return user, "Main", nil
-	}
-
-	user, err = database.GetUserById(userID)
-	if err == nil {
-		return user, "Replica", nil
-	}
-
-	return nil, "", err
 }
 
 func StartFiberServer() {
@@ -72,7 +54,7 @@ func StartFiberServer() {
 			return c.Status(400).JSON(fiber.Map{"error": "ID inválido"})
 		}
 
-		user, source, err := getUserByID(userID)
+		user, source, err := database.GetUserByCorrelativeDB(userID)
 		if err != nil {
 			return c.Status(404).JSON(fiber.Map{"error": "Usuario no encontrado"})
 		}
@@ -85,24 +67,38 @@ func StartFiberServer() {
 
 		if err := c.BodyParser(&user); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "No se pudo parsear el body",
+				"check_id": "0",
+				"err":      "Formato Erróneo de envío",
 			})
 		}
 
-		correlative, err := database.InsertUser(user)
+		insertedId, err := database.InsertUser(user)
+
 		if err != nil {
-			return fmt.Errorf("error insertando usuario en la BD: %w", err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"check_id": "0",
+				"err":      "No se insertó el usuario",
+			})
 		}
-		user.Correlative = correlative
 
 		if err := tasks.SendUserToQueue(redisClient, user); err != nil {
 			log.Printf("Error encolando usuario: %v", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "No se pudo encolar el usuario"})
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"check_id": "0",
+				"error":    "No se pudo encolar el usuario",
+			})
+		}
+		newUser, err := database.GetUserById(insertedId)
+
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"check_id": "0",
+				"err":      "No se insertó el usuario",
+			})
 		}
 
 		return c.JSON(fiber.Map{
-			"status": "OK",
-			"data":   user,
+			"check_id": newUser.Correlative,
 		})
 
 	})
