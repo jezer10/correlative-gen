@@ -32,6 +32,11 @@ func InitDb() {
 	}
 
 	log.Println("✅ Conexión a la base de datos Postgres exitosa")
+	InitUsers()
+	InitLogs()
+	fmt.Println("✅ Base de datos inicializada con tablas y triggers")
+}
+func InitUsers() {
 	initSQL := `
 	CREATE TABLE IF NOT EXISTS USUARIOS (
 		ID SERIAL PRIMARY KEY,
@@ -70,13 +75,11 @@ func InitDb() {
 	FOR EACH ROW
 	EXECUTE FUNCTION generate_correlative();
 	`
-	_, err = DB.Exec(initSQL)
+	_, err := DB.Exec(initSQL)
 	if err != nil {
 		log.Fatal("Error ejecutando comandos de inicialización:", err)
 	}
-	fmt.Println("✅ Base de datos inicializada con tablas y triggers")
 }
-
 func InsertUser(user models.User) (int, error) {
 	var id int
 
@@ -86,6 +89,15 @@ func InsertUser(user models.User) (int, error) {
 		return 0, err
 	}
 	return id, nil
+}
+
+func DeleteUser(userID int) error {
+	query := `DELETE FROM USUARIOS WHERE ID = $1`
+	_, err := DB.Exec(query, userID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func GetUserById(userID int) (*models.User, error) {

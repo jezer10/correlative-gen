@@ -51,11 +51,13 @@ func StartFiberServer() {
 		idParam := c.Params("id")
 		userID, err := strconv.Atoi(idParam)
 		if err != nil {
+			database.SaveErrorLog(err.Error())
 			return c.Status(400).JSON(fiber.Map{"error": "ID inválido"})
 		}
 
 		user, source, err := database.GetUserByCorrelativeDB(userID)
 		if err != nil {
+			database.SaveErrorLog(err.Error())
 			return c.Status(404).JSON(fiber.Map{"error": "Usuario no encontrado"})
 		}
 
@@ -66,6 +68,7 @@ func StartFiberServer() {
 		var user models.User
 
 		if err := c.BodyParser(&user); err != nil {
+			database.SaveErrorLog(err.Error())
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"check_id": "0",
 				"err":      "Formato Erróneo de envío",
@@ -75,6 +78,7 @@ func StartFiberServer() {
 		insertedId, err := database.InsertUser(user)
 
 		if err != nil {
+			database.SaveErrorLog(err.Error())
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"check_id": "0",
 				"err":      "No se insertó el usuario",
@@ -82,7 +86,10 @@ func StartFiberServer() {
 		}
 
 		if err := tasks.SendUserToQueue(redisClient, user); err != nil {
-			log.Printf("Error encolando usuario: %v", err)
+			database.SaveErrorLog(err.Error())
+			if err := database.DeleteUser(insertedId); err != nil {
+				database.SaveErrorLog(err.Error())
+			}
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"check_id": "0",
 				"error":    "No se pudo encolar el usuario",
@@ -91,6 +98,7 @@ func StartFiberServer() {
 		newUser, err := database.GetUserById(insertedId)
 
 		if err != nil {
+			database.SaveErrorLog(err.Error())
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"check_id": "0",
 				"err":      "No se insertó el usuario",
@@ -106,6 +114,7 @@ func StartFiberServer() {
 
 	log.Println("🚀 Servidor en ejecución")
 	if err := app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
+		database.SaveErrorLog(err.Error())
 		log.Fatal("❌ Error al iniciar el servidor:", err)
 	}
 
