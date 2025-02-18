@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -47,21 +48,45 @@ func StartFiberServer() {
 		return c.SendString("Hello, World!")
 	})
 
-	app.Get("/user/:id", apiKeyMiddleware, func(c *fiber.Ctx) error {
-		idParam := c.Params("id")
-		userID, err := strconv.Atoi(idParam)
-		if err != nil {
-			database.SaveErrorLog(err.Error())
-			return c.Status(400).JSON(fiber.Map{"error": "ID inválido"})
+	app.Post("/user/ids", apiKeyMiddleware, func(c *fiber.Ctx) error {
+		var body models.RequestBody
+		if err := c.BodyParser(&body); err != nil {
+			return c.Status(400).JSON(fiber.Map{"error": "Formato JSON inválido"})
 		}
 
-		user, source, err := database.GetUserByCorrelativeDB(userID)
+		var checkIDs []string
+		for _, raw := range body.CheckIDs {
+			var strVal string
+			if err := json.Unmarshal(raw, &strVal); err == nil {
+				checkIDs = append(checkIDs, fmt.Sprintf("'%s'", strVal))
+				continue
+			}
+
+			var intVal int
+			if err := json.Unmarshal(raw, &intVal); err == nil {
+				tmpConv := strconv.Itoa(intVal)
+				checkIDs = append(checkIDs, fmt.Sprintf("'%s'", tmpConv))
+				continue
+			}
+
+			return c.Status(400).JSON(fiber.Map{
+				"check_ids": []string{},
+				"err":       "Valores inválidos en check_ids"})
+		}
+		usrs, db, err := database.GetUsersDB(checkIDs)
 		if err != nil {
 			database.SaveErrorLog(err.Error())
-			return c.Status(404).JSON(fiber.Map{"error": "Usuario no encontrado"})
+			return c.Status(400).JSON(fiber.Map{
+				"check_ids": []string{},
+				"err":       "Error al consultar los usuarios",
+			})
 		}
 
-		return c.JSON(fiber.Map{"source": source, "user": user})
+		return c.JSON(fiber.Map{
+			"message":   "Consulta realizada con éxito",
+			"db":        db,
+			"check_ids": usrs,
+		})
 	})
 
 	app.Post("/", apiKeyMiddleware, func(c *fiber.Ctx) error {

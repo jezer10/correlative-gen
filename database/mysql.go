@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/emidiaz3/event-driven-server/models"
 	_ "github.com/go-sql-driver/mysql"
@@ -124,4 +125,55 @@ func GetUserByCorrelativeMysql(Correlative int) (*models.User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func GetUsersMysql(ids []string) ([]models.User, error) {
+	var err error
+	idClause := strings.Join(ids, ",")
+
+	query := fmt.Sprintf(
+		`
+		SELECT
+			ID,
+			NOMBRE, 
+			APELLIDO, 
+			DNI, 
+			FECHANACIMIENTO, 
+			NACIONALIDAD, 
+			CORRELATIVO,
+			STATUS,
+			SCORE,
+			SCORE_DESCRIPTION,
+			SCORE_NOTE
+		FROM 
+			USUARIOS
+		WHERE
+			CORRELATIVO IN (%s)
+		`,
+		idClause,
+	)
+
+	rows, err := DbMySQL.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []models.User
+
+	for rows.Next() {
+		var user models.User
+		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Identity, &user.Birthday, &user.NativeCountry, &user.Correlative, &user.GlobalStatus, &user.Score, &user.ScoreDescription, &user.ScoreNote)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
