@@ -139,7 +139,8 @@ func GetUsersMysql(ids []string) ([]models.User, error) {
 			APELLIDO, 
 			DNI, 
 			FECHANACIMIENTO, 
-			NACIONALIDAD, 
+			NACIONALIDAD,
+			RESIDENCIA,
 			CORRELATIVO,
 			STATUS,
 			SCORE,
@@ -163,7 +164,7 @@ func GetUsersMysql(ids []string) ([]models.User, error) {
 
 	for rows.Next() {
 		var user models.User
-		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Identity, &user.Birthday, &user.NativeCountry, &user.Correlative, &user.GlobalStatus, &user.Score, &user.ScoreDescription, &user.ScoreNote)
+		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Identity, &user.Birthday, &user.NativeCountry, &user.Country, &user.Correlative, &user.GlobalStatus, &user.Score, &user.ScoreDescription, &user.ScoreNote)
 		if err != nil {
 			return nil, err
 		}
