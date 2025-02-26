@@ -11,10 +11,9 @@ import (
 func main() {
 	utils.InitEnv()
 	utils.InitApiKey()
+	utils.InitConfig()
 	database.InitDb()
 	defer database.DB.Close()
-	database.InitMysqlDb()
-	defer database.DbMySQL.Close()
 	var wg sync.WaitGroup
 
 	wg.Add(2)

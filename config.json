@@ -1,20 +1,14 @@
 {
   "databases": [
     {
-      "name": "bgc",
-      "host": "localhost",
-      "port": 3306,
-      "username": "mysql",
-      "password": "2aMputDKQ3xq6CCVv4oF78ENLkPbesueAT439htLgpR6gunHMe4hdDKKdCUwu7p4yVEh2Cx6VrLEBYbEP7D4dcKbxQRcDh3PPHQy",
-      "type": "mysql"
+      "type": "mysql",
+      "dsn": "mysql:2aMputDKQ3xq6CCVv4oF78ENLkPbesueAT439htLgpR6gunHMe4hdDKKdCUwu7p4yVEh2Cx6VrLEBYbEP7D4dcKbxQRcDh3PPHQy@tcp(localhost:3306)/bgc",
+      "insertQuery": "INSERT INTO USUARIOS (NOMBRE, APELLIDO, DNI, FECHANACIMIENTO, NACIONALIDAD, RESIDENCIA, CORRELATIVO) VALUES (?, ?, ?, ?, ?, ?, ?)"
     },
     {
-      "name": "db1",
-      "host": "localhost",
-      "port": 1433,
-      "username": "sa",
-      "password": "TuPassword123!",
-      "type": "sqlserver"
+      "type": "sqlserver",
+      "dsn": "sqlserver://sa:TuPassword123!@localhost:1433?database=bgc",
+      "insertQuery": "INSERT INTO USUARIOS (NOMBRE, APELLIDO, DNI, FECHANACIMIENTO, NACIONALIDAD, RESIDENCIA, CORRELATIVO) VALUES (?, ?, ?, ?, ?, ?, ?)"
     }
   ]
 }
