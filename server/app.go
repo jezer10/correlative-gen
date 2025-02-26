@@ -73,7 +73,7 @@ func StartFiberServer() {
 				"check_ids": []string{},
 				"err":       "Valores inválidos en check_ids"})
 		}
-		usrs, db, err := database.GetUsersDB(checkIDs)
+		usrs, err := database.GetUsers(checkIDs)
 		if err != nil {
 			database.SaveErrorLog(err.Error())
 			return c.Status(400).JSON(fiber.Map{
@@ -84,7 +84,6 @@ func StartFiberServer() {
 
 		return c.JSON(fiber.Map{
 			"message":   "Consulta realizada con éxito",
-			"db":        db,
 			"check_ids": usrs,
 		})
 	})

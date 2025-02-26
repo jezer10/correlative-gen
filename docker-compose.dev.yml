@@ -1,4 +1,14 @@
 services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:latest
+    restart: always
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "TuPassword123!"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
   mysql:
     image: mysql
     restart: always
@@ -54,6 +64,7 @@ volumes:
   pg_data:
   redis_data:
   mysql_data:
+  sqlserver_data:
 
 
 networks:
