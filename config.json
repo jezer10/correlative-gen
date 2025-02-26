@@ -2,13 +2,11 @@
   "databases": [
     {
       "type": "mysql",
-      "dsn": "mysql:2aMputDKQ3xq6CCVv4oF78ENLkPbesueAT439htLgpR6gunHMe4hdDKKdCUwu7p4yVEh2Cx6VrLEBYbEP7D4dcKbxQRcDh3PPHQy@tcp(localhost:3306)/bgc",
-      "insertQuery": "INSERT INTO USUARIOS (NOMBRE, APELLIDO, DNI, FECHANACIMIENTO, NACIONALIDAD, RESIDENCIA, CORRELATIVO) VALUES (?, ?, ?, ?, ?, ?, ?)"
+      "dsn": "mysql:2aMputDKQ3xq6CCVv4oF78ENLkPbesueAT439htLgpR6gunHMe4hdDKKdCUwu7p4yVEh2Cx6VrLEBYbEP7D4dcKbxQRcDh3PPHQy@tcp(localhost:3306)/bgc"
     },
     {
       "type": "sqlserver",
-      "dsn": "sqlserver://sa:TuPassword123!@localhost:1433?database=bgc",
-      "insertQuery": "INSERT INTO USUARIOS (NOMBRE, APELLIDO, DNI, FECHANACIMIENTO, NACIONALIDAD, RESIDENCIA, CORRELATIVO) VALUES (?, ?, ?, ?, ?, ?, ?)"
+      "dsn": "sqlserver://sa:TuPassword123!@localhost?database=bgc"
     }
   ]
 }

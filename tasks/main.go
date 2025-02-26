@@ -10,6 +10,7 @@ import (
 
 	"github.com/emidiaz3/event-driven-server/models"
 	"github.com/emidiaz3/event-driven-server/utils"
+
 	"github.com/hibiken/asynq"
 
 	_ "github.com/denisenkom/go-mssqldb"
@@ -18,20 +19,19 @@ import (
 )
 
 const (
-	TypeInsertUser = "insert:user"
+	TypeInsertUserMysql     = "insert:user:mysql"
+	TypeInsertUserSqlServer = "insert:user:sqlserver"
 )
 
-func SendUserToQueue(redisClient *asynq.Client, person models.User) error {
+func SendUserToQueue(redisClient *asynq.Client, user models.User) error {
 
-	args := []any{person.FirstName, person.LastName, person.Identity, person.Birthday, person.NativeCountry, person.Country, person.Correlative}
 	for _, dbConfig := range utils.Config.Databases {
 		payload, _ := json.Marshal(map[string]any{
-			"DSN":    dbConfig.DSN,
-			"Query":  dbConfig.InsertQuery,
-			"DBType": dbConfig.DbType,
-			"Args":   args,
+			"DSN":  dbConfig.DSN,
+			"Data": user,
 		})
-		task := asynq.NewTask(TypeInsertUser, payload)
+		taskType := fmt.Sprintf("insert:user:%s", dbConfig.DbType)
+		task := asynq.NewTask(taskType, payload)
 
 		opts := []asynq.Option{
 			asynq.MaxRetry(5),
@@ -42,47 +42,72 @@ func SendUserToQueue(redisClient *asynq.Client, person models.User) error {
 		if err != nil {
 			return fmt.Errorf("error enviando tarea a Asynq: %w", err)
 		}
-		log.Printf("Usuario %s %s encolado correctamente a %s", person.FirstName, person.LastName, dbConfig.DbType)
+		log.Printf("Usuario %s %s encolado correctamente a %s", user.FirstName, user.LastName, dbConfig.DbType)
 	}
 
 	return nil
 
 }
 
-func HandleInsertUserTask(ctx context.Context, t *asynq.Task) error {
+func HandleInsertUserTaskSqlServer(ctx context.Context, t *asynq.Task) error {
 	var payload models.InsertTaskPayload
 
 	if err := json.Unmarshal(t.Payload(), &payload); err != nil {
 		return fmt.Errorf("error decodificando JSON: %w", err)
 	}
-	var driver string
-	switch payload.DBType {
-	case "sqlserver":
-		driver = "sqlserver"
-	case "postgres":
-		driver = "postgres"
-	case "mysql":
-		driver = "mysql"
-	default:
-		return fmt.Errorf("tipo de BD desconocido: %s", payload.DBType)
-	}
-	fmt.Println(payload.DSN)
 
-	db, err := sql.Open(driver, payload.DSN)
+	db, err := sql.Open("sqlserver", payload.DSN)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
+	query := `
+	INSERT
+	INTO 
+	USUARIOS 
+		(NOMBRE, APELLIDO, DNI, FECHANACIMIENTO, NACIONALIDAD, RESIDENCIA, CORRELATIVO, FECHAREGISTRO) 
+	VALUES 
+		(@Nombre, @Apellido, @Dni, @FechaNacimiento, @Nacionalidad, @Residencia, @Correlativo, GETDATE())
+	`
+	_, err = db.Exec(query,
+		sql.Named("Nombre", payload.Data.FirstName),
+		sql.Named("Apellido", payload.Data.LastName),
+		sql.Named("Dni", payload.Data.Identity),
+		sql.Named("FechaNacimiento", payload.Data.Birthday),
+		sql.Named("Nacionalidad", payload.Data.NativeCountry),
+		sql.Named("Residencia", payload.Data.Country),
+		sql.Named("Correlativo", payload.Data.Correlative),
+	)
+	if err != nil {
+		return fmt.Errorf("error ejecutando query: %w", err)
+	}
 
-	fmt.Println("Payload: ", payload.Query, payload.DBType)
-	_, err = db.Exec(payload.Query, payload.Args...)
-	fmt.Println(err)
+	return nil
+}
 
-	return err
-	// if err := database.InsertUserMysql(user); err != nil {
-	// 	return fmt.Errorf("error Insertando en BD Final: %w", err)
+func HandleInsertUserTaskMySql(ctx context.Context, t *asynq.Task) error {
+	var payload models.InsertTaskPayload
 
-	// }
+	if err := json.Unmarshal(t.Payload(), &payload); err != nil {
+		return fmt.Errorf("error decodificando JSON: %w", err)
+	}
+	db, err := sql.Open("mysql", payload.DSN)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	query := `
+	INSERT
+	INTO 
+	USUARIOS 
+		(NOMBRE, APELLIDO, DNI, FECHANACIMIENTO, NACIONALIDAD, RESIDENCIA, CORRELATIVO, FECHAREGISTRO) 
+	VALUES 
+		(? , ? , ? , ? , ? , ? , ?, NOW())
+	`
+	_, err = db.Exec(query, payload.Data.FirstName, payload.Data.LastName, payload.Data.Identity, payload.Data.Birthday, payload.Data.NativeCountry, payload.Data.Country, payload.Data.Correlative)
+	if err != nil {
+		return fmt.Errorf("error ejecutando query: %w", err)
+	}
 
 	return nil
 }
