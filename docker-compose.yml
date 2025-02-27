@@ -1,4 +1,21 @@
 services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:latest
+    restart: always
+    networks:
+      - internal
+    ports:
+      - 1433:1433
+    env_file:
+      - .env
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "sqlcmd -S localhost -U sa -P YourPassword123! -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   mysql:
     image: mysql
     restart: always
@@ -27,6 +44,8 @@ services:
       redis:
         condition: service_healthy
       mysql:
+        condition: service_healthy
+      sqlserver:
         condition: service_healthy
   pg:
     image: postgres
@@ -63,6 +82,7 @@ volumes:
   pg_data:
   redis_data:
   mysql_data:
+  sqlserver_data:
 
 
 networks:
