@@ -6,7 +6,7 @@
     },
     {
       "type": "sqlserver",
-      "dsn": "sqlserver://sa:2aMputDKQ3xq6CCVv4oF78ENLkPbesueAT439htLgpR6gunHMe4hdDKKdCUwu7p4yVEh2Cx6VrLEBYbEP7D4dcKbxQRcDh3PPHQy@sqlserver?database=bgc"
+      "dsn": "sqlserver://sa:2aMputDKQ3xq6CCVv4oF78ENLkPbesueAT439htLgpR6gunHMe4hdDKKdCUwu7p4yVEh2Cx6VrLEBYbEP7D4dcKbxQRcDh3PPHQy@sqlserver:1433?database=bgc&encrypt=disable"
     }
   ]
 }

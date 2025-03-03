@@ -55,8 +55,9 @@ func HandleInsertUserTaskSqlServer(ctx context.Context, t *asynq.Task) error {
 	if err := json.Unmarshal(t.Payload(), &payload); err != nil {
 		return fmt.Errorf("error decodificando JSON: %w", err)
 	}
-
 	db, err := sql.Open("sqlserver", payload.DSN)
+	fmt.Println(err)
+
 	if err != nil {
 		return err
 	}
@@ -78,6 +79,8 @@ func HandleInsertUserTaskSqlServer(ctx context.Context, t *asynq.Task) error {
 		sql.Named("Residencia", payload.Data.Country),
 		sql.Named("Correlativo", payload.Data.Correlative),
 	)
+	fmt.Println(err)
+
 	if err != nil {
 		return fmt.Errorf("error ejecutando query: %w", err)
 	}
@@ -92,6 +95,7 @@ func HandleInsertUserTaskMySql(ctx context.Context, t *asynq.Task) error {
 		return fmt.Errorf("error decodificando JSON: %w", err)
 	}
 	db, err := sql.Open("mysql", payload.DSN)
+	fmt.Println(err)
 	if err != nil {
 		return err
 	}
@@ -105,6 +109,7 @@ func HandleInsertUserTaskMySql(ctx context.Context, t *asynq.Task) error {
 		(? , ? , ? , ? , ? , ? , ?, NOW())
 	`
 	_, err = db.Exec(query, payload.Data.FirstName, payload.Data.LastName, payload.Data.Identity, payload.Data.Birthday, payload.Data.NativeCountry, payload.Data.Country, payload.Data.Correlative)
+	fmt.Println(err)
 	if err != nil {
 		return fmt.Errorf("error ejecutando query: %w", err)
 	}

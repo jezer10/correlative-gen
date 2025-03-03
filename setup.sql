@@ -7,6 +7,9 @@ Enter custom T-SQL here that would run after SQL Server has started up.
 CREATE DATABASE bgc;
 GO
 
+USE bgc;
+GO
+
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'USUARIOS')
 BEGIN
     CREATE TABLE USUARIOS ( 

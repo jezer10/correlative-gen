@@ -5,8 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile.mssql
     ports:
-      - "1433:1433"
-    .env_file:
+      - 1433:1433
+    env_file:
       - .env
     volumes:
       - sqlserver_data:/var/opt/mssql
@@ -26,6 +26,7 @@ services:
       - .env
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword" ]
       interval: 10s
