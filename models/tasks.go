@@ -1,6 +1,7 @@
 package models
 
 type InsertTaskPayload struct {
-	DSN  string
-	Data User
+	DSN        string
+	HttpMethod string
+	Data       User
 }

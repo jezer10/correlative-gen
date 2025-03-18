@@ -19,16 +19,18 @@ import (
 )
 
 const (
-	TypeInsertUserMysql     = "insert:user:mysql"
-	TypeInsertUserSqlServer = "insert:user:sqlserver"
+	TypeInsertUserMysql      = "insert:user:mysql"
+	TypeInsertUserSqlServer  = "insert:user:sqlserver"
+	TypeInsertUserWebService = "insert:user:api"
 )
 
 func SendUserToQueue(redisClient *asynq.Client, user models.User) error {
 
 	for _, dbConfig := range utils.Config.Databases {
 		payload, _ := json.Marshal(map[string]any{
-			"DSN":  dbConfig.DSN,
-			"Data": user,
+			"DSN":        dbConfig.DSN,
+			"HttpMethod": dbConfig.HttpMethod,
+			"Data":       user,
 		})
 		taskType := fmt.Sprintf("insert:user:%s", dbConfig.DbType)
 		task := asynq.NewTask(taskType, payload)
@@ -113,6 +115,13 @@ func HandleInsertUserTaskMySql(ctx context.Context, t *asynq.Task) error {
 	if err != nil {
 		return fmt.Errorf("error ejecutando query: %w", err)
 	}
+
+	return nil
+}
+
+func HandleInsertUserWebService(ctx context.Context, t *asynq.Task) error {
+	var payload models.InsertTaskPayload
+	// TODO: USAR PAYLOAD PARA REALIZAR METODO A WEB SERVICE -KEV
 
 	return nil
 }
