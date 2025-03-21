@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/emidiaz3/event-driven-server/models"
@@ -132,7 +133,7 @@ func HandleInsertUserWebService(ctx context.Context, t *asynq.Task) error {
 		return fmt.Errorf("error al serializar la data: %w", err)
 	}
 	fmt.Println(payload.DSN)
-	req, err := http.NewRequestWithContext(ctx, payload.HttpMethod, payload.DSN, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, strings.ToUpper(payload.HttpMethod), payload.DSN, bytes.NewBuffer(jsonData))
 
 	if err != nil {
 		return fmt.Errorf("error al crear request: %w", err)
