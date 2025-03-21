@@ -35,6 +35,7 @@ func SendUserToQueue(redisClient *asynq.Client, user models.User) error {
 			"Data":       user,
 		})
 		taskType := fmt.Sprintf("insert:user:%s", dbConfig.DbType)
+		fmt.Println(taskType)
 		task := asynq.NewTask(taskType, payload)
 
 		opts := []asynq.Option{
