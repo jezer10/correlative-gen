@@ -1,11 +1,13 @@
 package tasks
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/emidiaz3/event-driven-server/models"
@@ -121,6 +123,29 @@ func HandleInsertUserTaskMySql(ctx context.Context, t *asynq.Task) error {
 
 func HandleInsertUserWebService(ctx context.Context, t *asynq.Task) error {
 	var payload models.InsertTaskPayload
+	jsonData, err := json.Marshal(payload.Data)
+	if err != nil {
+		return fmt.Errorf("error al serializar la data: %w", err)
+	}
+	req, err := http.NewRequestWithContext(ctx, payload.HttpMethod, payload.DSN, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("error al crear request: %w", err)
+	}
+
+	req.Header.Set("Content-type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("error al ejecutar request: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+		return fmt.Errorf("status code inesperado: %d", resp.StatusCode)
+
+	}
+
 	// TODO: USAR PAYLOAD PARA REALIZAR METODO A WEB SERVICE -KEV
 
 	return nil
