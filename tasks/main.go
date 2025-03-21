@@ -124,6 +124,9 @@ func HandleInsertUserTaskMySql(ctx context.Context, t *asynq.Task) error {
 
 func HandleInsertUserWebService(ctx context.Context, t *asynq.Task) error {
 	var payload models.InsertTaskPayload
+	if err := json.Unmarshal(t.Payload(), &payload); err != nil {
+		return fmt.Errorf("error decodificando JSON: %w", err)
+	}
 	jsonData, err := json.Marshal(payload.Data)
 	if err != nil {
 		return fmt.Errorf("error al serializar la data: %w", err)
