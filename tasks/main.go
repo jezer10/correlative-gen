@@ -131,6 +131,7 @@ func HandleInsertUserWebService(ctx context.Context, t *asynq.Task) error {
 	if err != nil {
 		return fmt.Errorf("error al serializar la data: %w", err)
 	}
+	fmt.Println(payload.DSN)
 	req, err := http.NewRequestWithContext(ctx, payload.HttpMethod, payload.DSN, bytes.NewBuffer(jsonData))
 
 	if err != nil {
