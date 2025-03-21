@@ -161,3 +161,14 @@ func LoggingMiddleware(next asynq.Handler) asynq.Handler {
 		return next.ProcessTask(ctx, t)
 	})
 }
+
+// logging middlware for error
+func ErrorLoggingMiddleware(next asynq.Handler) asynq.Handler {
+	return asynq.HandlerFunc(func(ctx context.Context, t *asynq.Task) error {
+		err := next.ProcessTask(ctx, t)
+		if err != nil {
+			log.Printf("Error procesando tarea: %v", err)
+		}
+		return err
+	})
+}

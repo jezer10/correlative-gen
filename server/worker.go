@@ -30,7 +30,7 @@ func StartAsynqServer() {
 	mux.HandleFunc(tasks.TypeInsertUserSqlServer, tasks.HandleInsertUserTaskSqlServer)
 	mux.HandleFunc(tasks.TypeInsertUserWebService, tasks.HandleInsertUserWebService)
 	mux.Use(tasks.LoggingMiddleware)
-
+	mux.Use(tasks.ErrorLoggingMiddleware)
 	fmt.Println("Iniciando Worker")
 	if err := redisServer.Run(mux); err != nil {
 		log.Fatalf("Error iniciando el worker: %v", err)
