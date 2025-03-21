@@ -10,7 +10,7 @@
     },
     {
       "type": "api",
-      "dsn": "146.235.245.38/api/v1/test",
+      "dsn": "http://146.235.245.38:3000/api/v1/test",
       "method": "post"
     }
   ]
