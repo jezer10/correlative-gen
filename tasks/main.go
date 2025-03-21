@@ -124,12 +124,12 @@ func HandleInsertUserTaskMySql(ctx context.Context, t *asynq.Task) error {
 
 func HandleInsertUserWebService(ctx context.Context, t *asynq.Task) error {
 	var payload models.InsertTaskPayload
-	fmt.Println("HandleInsertUserWebService")
 	jsonData, err := json.Marshal(payload.Data)
 	if err != nil {
 		return fmt.Errorf("error al serializar la data: %w", err)
 	}
 	req, err := http.NewRequestWithContext(ctx, payload.HttpMethod, payload.DSN, bytes.NewBuffer(jsonData))
+
 	if err != nil {
 		return fmt.Errorf("error al crear request: %w", err)
 	}
@@ -137,6 +137,7 @@ func HandleInsertUserWebService(ctx context.Context, t *asynq.Task) error {
 	req.Header.Set("Content-type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
+
 	if err != nil {
 		return fmt.Errorf("error al ejecutar request: %w", err)
 	}
@@ -144,6 +145,7 @@ func HandleInsertUserWebService(ctx context.Context, t *asynq.Task) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+
 		return fmt.Errorf("status code inesperado: %d", resp.StatusCode)
 
 	}
@@ -151,4 +153,11 @@ func HandleInsertUserWebService(ctx context.Context, t *asynq.Task) error {
 	// TODO: USAR PAYLOAD PARA REALIZAR METODO A WEB SERVICE -KEV
 
 	return nil
+}
+
+func LoggingMiddleware(next asynq.Handler) asynq.Handler {
+	return asynq.HandlerFunc(func(ctx context.Context, t *asynq.Task) error {
+		fmt.Printf("Procesando tarea: %s\n", t.Type())
+		return next.ProcessTask(ctx, t)
+	})
 }

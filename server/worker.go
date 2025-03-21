@@ -29,6 +29,7 @@ func StartAsynqServer() {
 	mux.HandleFunc(tasks.TypeInsertUserMysql, tasks.HandleInsertUserTaskMySql)
 	mux.HandleFunc(tasks.TypeInsertUserSqlServer, tasks.HandleInsertUserTaskSqlServer)
 	mux.HandleFunc(tasks.TypeInsertUserWebService, tasks.HandleInsertUserWebService)
+	mux.Use(tasks.LoggingMiddleware)
 
 	fmt.Println("Iniciando Worker")
 	if err := redisServer.Run(mux); err != nil {
