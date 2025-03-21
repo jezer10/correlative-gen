@@ -123,6 +123,7 @@ func HandleInsertUserTaskMySql(ctx context.Context, t *asynq.Task) error {
 
 func HandleInsertUserWebService(ctx context.Context, t *asynq.Task) error {
 	var payload models.InsertTaskPayload
+	fmt.Println("HandleInsertUserWebService")
 	jsonData, err := json.Marshal(payload.Data)
 	if err != nil {
 		return fmt.Errorf("error al serializar la data: %w", err)
