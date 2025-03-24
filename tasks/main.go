@@ -43,6 +43,7 @@ func SendUserToQueue(redisClient *asynq.Client, user models.User) error {
 			asynq.MaxRetry(5),
 			asynq.Timeout(30 * time.Second),
 			asynq.Queue("critical"),
+			asynq.Retention(24 * time.Hour),
 		}
 		_, err := redisClient.Enqueue(task, opts...)
 		if err != nil {
