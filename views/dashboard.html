@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ .Title }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script
+      src="https://kit.fontawesome.com/6d627b0a8b.js"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      th {
+        font-weight: 100;
+      }
+      td {
+        font-weight: 100;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50">
+    <div class="p-4 w-full">
+      <div class="w-full overflow-auto">
+        <table class="table-auto border border-slate-100 w-full text-nowrap">
+          <thead>
+            <tr class="bg-slate-900 text-white">
+              <th class="px-4 py-2">Edición</th>
+              <th class="px-4 py-2">DNI</th>
+              <th class="px-4 py-2">Nombres</th>
+              <th class="px-4 py-2">Apellidos</th>
+              <th class="px-4 py-2">Fecha De Nacimiento</th>
+              <th class="px-4 py-2">País de Origen</th>
+              <th class="px-4 py-2">Residencia</th>
+              <th class="px-4 py-2">Correlativo</th>
+              <th class="px-4 py-2">Status</th>
+              <th class="px-4 py-2">Fecha Registro</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range .Postulantes }}
+            <tr class="odd:bg-white even:bg-slate-100 text-center">
+              <!-- Columna de edición con el icono de lápiz -->
+              <td class="px-4 py-2">
+                <a href="/postulantes/edit/{{ .Id }}">
+                  <i class="fa-solid fa-pencil"></i>
+                </a>
+              </td>
+              <td class="px-4 py-2">{{ .Identity }}</td>
+              <td class="px-4 py-2">{{ .FirstName }}</td>
+              <td class="px-4 py-2">{{ .LastName }}</td>
+              <td class="px-4 py-2">{{ .Birthday }}</td>
+              <td class="px-4 py-2">{{ .NativeCountry }}</td>
+              <td class="px-4 py-2">{{ .Country }}</td>
+              <td class="px-4 py-2">{{ .Correlative }}</td>
+              <td class="px-4 py-2">
+                {{if .Status.Valid}} {{.Status.String}}
+                <!-- Muestra la fecha si no es nula -->
+                {{else}} Processing
+                <!-- Si es nula, muestra "N/A" -->
+                {{end}}
+              </td>
+              <!-- Reemplaza "Fecha Registro" por el campo correspondiente si lo tienes -->
+              <td class="px-4 py-2">{{ .CreatedAt }}</td>
+            </tr>
+            {{ end }}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

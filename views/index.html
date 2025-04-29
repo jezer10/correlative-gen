@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ .Title }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script
+      src="https://kit.fontawesome.com/6d627b0a8b.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body class="">
+    <div class="h-screen w-screen flex justify-center bg-slate-50">
+      <div class="w-full max-w-sm px-12  bg-white h-full flex flex-col  shadow-lg gap-12 justify-center pb-48">
+        <h1 class="font-bold text-2xl text-center text-slate-700">Inicio de Sesión</h1>
+        <form method="POST" action="/login" class="grid gap-8">
+
+        <div class="grid gap-8">
+          <div class="flex flex-col gap-1">
+            <label for="username" class="text-xs font-bold text-slate-500">
+              Usuario
+            </label>
+            <div class="relative flex items-center">
+              <i class="fa-regular fa-user absolute left-2 text-slate-500"></i>
+
+              <input
+                id="username"
+                name="username"
+                class="border-b-2 border-slate-100 focus:outline-none w-full py-2 pl-10 pr-4 focus:border-slate-700"
+                placeholder="Ingrese Usuario"
+                type="text"
+              />
+            </div>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="password" class="text-xs font-bold text-slate-500"
+              >Contraseña</label
+            >
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-lock absolute left-2 text-slate-500"></i>
+              <input
+                id="password"
+                name="password"
+                class="border-b-2 border-slate-100 focus:outline-none w-full py-2 pl-10 pr-4 focus:border-slate-700"
+                placeholder="Ingrese Contraseña"
+                type="password"
+              />
+            </div>
+          </div>
+          <button class="w-full py-3 rounded-full bg-slate-700 text-white font-medium text-sm">Iniciar Sesión</button>
+        </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

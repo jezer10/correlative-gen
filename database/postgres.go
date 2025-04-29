@@ -33,31 +33,31 @@ func InitDb() {
 	}
 
 	log.Println("✅ Conexión a la base de datos Postgres exitosa")
-	InitUsers()
+	//InitUsers()
 	InitLogs()
 	fmt.Println("✅ Base de datos inicializada con tablas y triggers")
 }
 func InitUsers() {
 	initSQL := `
-	CREATE TABLE IF NOT EXISTS USUARIOS (
+	CREATE TABLE IF NOT EXISTS POSTULANTES (
 		ID SERIAL PRIMARY KEY,
 		DNI VARCHAR(20),
 		NOMBRE VARCHAR(80),
 		APELLIDO VARCHAR(100),
-		FECHANACIMIENTO CHAR(10),
-		FECHAREGISTRO VARCHAR(150),
+		FECHA_NACIMIENTO CHAR(10),
+		FECHA_REGISTRO TIMESTAMP,
 		CLIENTE CHAR(10),
 		FLAG BOOLEAN,
 		NACIONALIDAD VARCHAR(40),
 		STATUS CHAR(25),
-		STATUSDESCRIPTION VARCHAR(40),
-		STATUSNOTE VARCHAR(800),
+		STATUS_DESCRIPTION VARCHAR(40),
+		STATUS_NOTE VARCHAR(800),
 		CORRELATIVO VARCHAR(50),
 		SCORE VARCHAR(50),
 		SCORE_DESCRIPTION TEXT,
 		SCORE_NOTE TEXT,
 		RESIDENCIA VARCHAR(20),
-		FECHARESPUESTA TIMESTAMP
+		FECHA_RESPUESTA TIMESTAMP
 	);
 
 	CREATE OR REPLACE FUNCTION generate_correlative()
@@ -72,7 +72,7 @@ func InitUsers() {
 	$$ LANGUAGE plpgsql;
 
 	CREATE OR REPLACE TRIGGER trigger_generate_correlative
-	BEFORE INSERT ON USUARIOS
+	BEFORE INSERT ON POSTULANTES
 	FOR EACH ROW
 	EXECUTE FUNCTION generate_correlative();
 	`
@@ -84,7 +84,7 @@ func InitUsers() {
 func InsertUser(user models.User) (int, error) {
 	var id int
 
-	query := `INSERT INTO USUARIOS (NOMBRE, APELLIDO, DNI, FECHANACIMIENTO, NACIONALIDAD, RESIDENCIA) VALUES ($1, $2, $3, $4, $5, $6) returning id`
+	query := `INSERT INTO POSTULANTES (NOMBRE, APELLIDO, DNI, FECHA_NACIMIENTO, NACIONALIDAD, RESIDENCIA) VALUES ($1, $2, $3, $4, $5, $6) returning id`
 	err := DB.QueryRow(query, user.FirstName, user.LastName, user.Identity, user.Birthday, user.NativeCountry, user.Country).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -93,7 +93,7 @@ func InsertUser(user models.User) (int, error) {
 }
 
 func DeleteUser(userID int) error {
-	query := `DELETE FROM USUARIOS WHERE ID = $1`
+	query := `DELETE FROM POSTULANTES WHERE ID = $1`
 	_, err := DB.Exec(query, userID)
 	if err != nil {
 		return err
@@ -110,12 +110,12 @@ func GetUserById(userID int) (*models.User, error) {
 			NOMBRE, 
 			APELLIDO, 
 			DNI, 
-			FECHANACIMIENTO, 
+			FECHA_NACIMIENTO, 
 			NACIONALIDAD, 
 			RESIDENCIA, 
 			CORRELATIVO 
 		FROM 
-			USUARIOS 
+			POSTULANTES 
 		WHERE Id = $1
 		`
 	err = DB.QueryRow(
@@ -137,12 +137,12 @@ func GetUserByCorrelative(Correlative int) (*models.User, error) {
 			NOMBRE, 
 			APELLIDO, 
 			DNI, 
-			FECHANACIMIENTO, 
+			FECHA_NACIMIENTO, 
 			NACIONALIDAD, 
 			RESIDENCIA, 
 			CORRELATIVO 
 		FROM 
-			USUARIOS 
+			POSTULANTES 
 		WHERE CORRELATIVO = $1
 		`
 	err = DB.QueryRow(
@@ -166,7 +166,7 @@ func GetUsers(ids []string) ([]models.User, error) {
 			NOMBRE, 
 			APELLIDO, 
 			DNI, 
-			FECHANACIMIENTO, 
+			FECHA_NACIMIENTO, 
 			NACIONALIDAD,
 			RESIDENCIA,
 			CORRELATIVO,
@@ -175,7 +175,7 @@ func GetUsers(ids []string) ([]models.User, error) {
 			SCORE_DESCRIPTION,
 			SCORE_NOTE
 		FROM 
-			USUARIOS
+			POSTULANTES
 		WHERE
 			CORRELATIVO IN (%s)
 		`,
