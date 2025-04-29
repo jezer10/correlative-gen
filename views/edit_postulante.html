@@ -83,6 +83,55 @@
           />
         </div>
 
+  <div>
+    <label class="block text-sm font-medium">Status</label>
+    <select name="status" class="w-full px-4 py-2 border rounded">
+      <option value="NO TIENE ANTECEDENTES"
+        {{ if eq .Postulante.Status.String "NO TIENE ANTECEDENTES" }}selected{{ end }}>
+        NO TIENE ANTECEDENTES
+      </option>
+      <option value="TIENE ANTECEDENTES"
+        {{ if eq .Postulante.Status.String "TIENE ANTECEDENTES" }}selected{{ end }}>
+        TIENE ANTECEDENTES
+      </option>
+      <option value="DATA ERRADA POR CLIENTE"
+        {{ if eq .Postulante.Status.String "DATA ERRADA POR CLIENTE" }}selected{{ end }}>
+        DATA ERRADA POR CLIENTE
+      </option>
+    </select>
+  </div>
+
+  <!-- Score -->
+  <div>
+    <label class="block text-sm font-medium">Score</label>
+    <input
+      type="text"
+      name="score"
+      value="{{ if .Postulante.Score }}{{ .Postulante.Score }}{{ end }}"
+      class="w-full px-4 py-2 border rounded"
+    />
+  </div>
+
+  <!-- Score Description -->
+  <div>
+    <label class="block text-sm font-medium">Score Description</label>
+    <textarea
+      name="score_description"
+      class="w-full px-4 py-2 border rounded"
+      rows="3"
+    >{{ if .Postulante.ScoreDescription }}{{ .Postulante.ScoreDescription }}{{ end }}</textarea>
+  </div>
+
+  <!-- Score Note -->
+  <div>
+    <label class="block text-sm font-medium">Score Note</label>
+    <textarea
+      name="score_note"
+      class="w-full px-4 py-2 border rounded"
+      rows="3"
+    >{{ if .Postulante.ScoreNote }}{{ .Postulante.ScoreNote }}{{ end }}</textarea>
+  </div>
+
         <!-- Puedes agregar más campos como status, etc. -->
 
         <div class="pt-4">

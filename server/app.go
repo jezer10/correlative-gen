@@ -1,6 +1,7 @@
 package server
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -214,6 +215,32 @@ func UpdatePostulante(c *fiber.Ctx) error {
 	postulante.NativeCountry = c.FormValue("native_country")
 	postulante.Country = c.FormValue("country")
 	postulante.Correlative = c.FormValue("correlative")
+	// --- NUEVOS CAMPOS ---
+	// Status (sql.NullString)
+	statusVal := c.FormValue("status")
+	postulante.Status = sql.NullString{
+		String: statusVal,
+		Valid:  statusVal != "",
+	}
+	// Score (pointer a string)
+	if s := c.FormValue("score"); s != "" {
+		postulante.Score = &s
+	} else {
+		postulante.Score = nil
+	}
+	// Score Description
+	if sd := c.FormValue("score_description"); sd != "" {
+		postulante.ScoreDescription = &sd
+	} else {
+		postulante.ScoreDescription = nil
+	}
+	// Score Note
+	if sn := c.FormValue("score_note"); sn != "" {
+		postulante.ScoreNote = &sn
+	} else {
+		postulante.ScoreNote = nil
+	}
+	// --- FIN NUEVOS CAMPOS ---
 
 	if err := database.GetDB().Save(&postulante).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Error al guardar")

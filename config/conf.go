@@ -25,10 +25,7 @@ func SetupDatabaseConnection() {
 	if err != nil {
 		log.Fatal("Failed to connect to the database:", err)
 	}
-	db.AutoMigrate(&models.Postulantes{}, &models.Users{})
-
-	fmt.Println("Migración completada")
-
+	db.AutoMigrate(&models.Postulantes{})
 	triggerSQL := `
 		CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -54,5 +51,9 @@ func SetupDatabaseConnection() {
 	} else {
 		fmt.Println("Trigger creado correctamente.")
 	}
+
+	db.AutoMigrate(&models.Users{})
+
+	fmt.Println("Migración completada")
 	DB = db
 }
